@@ -1,0 +1,30 @@
+{
+  "name": "martina-laundry-booking",
+  "type": "module",
+  "version": "0.0.1",
+  "scripts": {
+    "dev": "astro dev",
+    "start": "astro dev",
+    "build": "astro check && astro build",
+    "preview": "astro preview",
+    "astro": "astro"
+  },
+  "dependencies": {
+    "@astrojs/check": "^0.3.1",
+    "@astrojs/solid-js": "^3.0.2",
+    "@astrojs/tailwind": "^5.0.2",
+    "@lucia-auth/adapter-sqlite": "^2.0.1",
+    "@types/better-sqlite3": "^7.6.8",
+    "astro": "^3.6.0",
+    "better-sqlite3": "^9.1.1",
+    "lucia": "^2.7.4",
+    "solid-js": "^1.4.3",
+    "tailwindcss": "^3.0.24",
+    "typescript": "^5.3.2"
+  },
+  "devDependencies": {
+    "daisyui": "^4.4.10",
+    "prettier": "^3.1.0",
+    "prettier-plugin-astro": "^0.12.2"
+  }
+}
