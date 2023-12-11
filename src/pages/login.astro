@@ -1,0 +1,18 @@
+---
+import Layout from "../layouts/Layout.astro";
+const { default: GoogleIcon } = await import("../icons/google.svg?raw");
+const { default: FacebookIcon } = await import("../icons/facebook.svg?raw");
+
+const session = await Astro.locals.auth.validate();
+if (session) return Astro.redirect("/", 302); // redirect to profile page
+---
+
+<Layout title="Log In">
+  <h1 class="text-7xl text-center text-white">Sign in</h1>
+  <div class="flex flex-col max-w-xs gap-4 mx-auto my-8">
+    <a href="/login/google" class="btn btn-primary">
+      <Fragment set:html={GoogleIcon} />
+       Login With Google</a
+    >
+  </div>
+</Layout>

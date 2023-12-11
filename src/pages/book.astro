@@ -1,0 +1,38 @@
+---
+import Layout from "../layouts/Layout.astro";
+import BookingForm from "../components/booking-form";
+import db from "../db";
+import { booking } from "../db/schema";
+import { auth } from "../lib/lucia";
+
+const laundryMachines = await db.query.laundryMachine.findMany({
+  with: {
+    bookings: true,
+  },
+});
+
+const session = await Astro.locals.auth.validate();
+if (!session) return Astro.redirect("/login", 302);
+
+if (Astro.request.method === "POST") {
+  const formData = await Astro.request.formData();
+  console.log(formData);
+  const endTime = new Date(formData.get("end-time") as string);
+  endTime.setHours(endTime.getHours() + 1);
+  await db.insert(booking).values({
+    id: crypto.randomUUID(),
+    userId: session?.user.userId,
+    laundryMachineId: formData.get("machine-id") as string,
+    startTime: new Date(formData.get("start-time") as string).getTime(),
+    endTime: endTime.getTime(),
+  });
+  return Astro.redirect("/book",302)
+}
+---
+
+<Layout title="Book an equipment">
+  <h1 class="text-center text-white text-3xl lg:text-7xl">
+    Book a laundry machine
+  </h1>
+  <BookingForm machines={laundryMachines} client:load />
+</Layout>

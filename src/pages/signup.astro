@@ -1,0 +1,125 @@
+---
+import Layout from "../layouts/Layout.astro";
+import { auth } from "../lib/lucia";
+import { SqliteError } from "better-sqlite3";
+import { safeParse } from "valibot";
+import { insertUserSchema } from "../validation";
+
+let errorMessage: string | null = null;
+
+// check for form submissions
+if (Astro.request.method === "POST") {
+  const formData = await Astro.request.formData();
+  const username = formData.get("username") as string;
+  const email = formData.get("email") as string;
+  const password = formData.get("password");
+  const passwordConfirm = formData.get("password-confirm");
+  const room = parseInt(formData.get("room-nr") as string);
+  const validateUserInput = safeParse(insertUserSchema, {
+    username,
+    email,
+    password,
+    passwordConfirm,
+    room,
+  });
+  if (validateUserInput.success) {
+    try {
+      const user = await auth.createUser({
+        key: {
+          providerId: "username", // auth method
+          providerUserId: validateUserInput.output.username, // unique id when using "username" auth method
+          password: validateUserInput.output.password, // hashed by Lucia
+        },
+        attributes: {
+          room_nr: validateUserInput.output.room,
+          admin: 0,
+        },
+      });
+      const session = await auth.createSession({
+        userId: user.userId,
+        attributes: {},
+      });
+      Astro.locals.auth.setSession(session); // set session cookie
+      return Astro.redirect("/", 302); // redirect to profile page
+    } catch (e) {
+      console.log(e);
+      // this part depends on the database you're using
+      // check for unique constraint error in user table
+      if (e instanceof SqliteError && e.code === "SQLITE_CONSTRAINT_UNIQUE") {
+        errorMessage = "Username already taken";
+        Astro.response.status = 400;
+      } else {
+        errorMessage = "An unknown error occurred";
+        Astro.response.status = 500;
+      }
+    }
+  } else {
+    errorMessage = validateUserInput.issues
+      .map((issue) => issue.message)
+      .join("<br/>");
+  }
+}
+---
+
+<Layout title="Sign Up">
+  <h1 class="text-7xl text-center text-white">Sign Up</h1>
+  <form
+    method="POST"
+    class="w-fit flex flex-col items-center gap-4 mx-auto my-2"
+  >
+    <div class="form-control w-full max-w-xs">
+      <label for="username" class="label">
+        <span class="label-text">Username</span>
+      </label>
+      <input
+        type="text"
+        name="username"
+        id="username"
+        class="input input-primary"
+      />
+    </div>
+    <div class="form-control w-full max-w-xs">
+      <label for="email" class="label">
+        <span class="label-text">Email</span>
+      </label>
+      <input type="email" name="email" id="email" class="input input-primary" />
+    </div>
+
+    <div class="form-control w-full max-w-xs">
+      <label for="room-nr" class="label">
+        <span class="label-text">Room Number</span>
+      </label>
+      <input name="room-nr" id="room-nr" class="input input-primary" /><br />
+    </div>
+
+    <div class="form-control w-full max-w-xs">
+      <label for="password" class="label">
+        <span class="label-text">Password</span>
+      </label>
+      <input
+        type="password"
+        name="password"
+        id="password"
+        class="input input-primary"
+      />
+    </div>
+
+    <div class="form-control w-full max-w-xs">
+      <label for="password-confirm" class="label">
+        <span class="label-text">Confirm Password</span>
+      </label>
+      <input
+        type="password"
+        name="password-confirm"
+        id="password-confirm"
+        class="input input-primary"
+      />
+    </div>
+
+    <input class="btn btn-primary" type="submit" value="Sign Up" />
+  </form>
+  <p class="text-center my-6 text-error">{errorMessage}</p>
+  <p class="text-center my-6">
+    Already have an account? <a href="/login">Sign in</a>
+  </p>
+</Layout>

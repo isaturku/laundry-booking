@@ -1,14 +1,19 @@
 ---
+import "@fontsource/pangolin";
+import '@fontsource/material-symbols-rounded';
+import {ViewTransitions} from "astro:transitions";
 interface Props {
   title: string;
 }
 
 const { title } = Astro.props;
+const session = await Astro.locals.auth.validate();
 ---
 
 <!doctype html>
-<html lang="en">
+<html lang="en" transition:animate="slide">
   <head>
+    <ViewTransitions/>
     <meta charset="UTF-8" />
     <meta
       name="description"
@@ -17,15 +22,9 @@ const { title } = Astro.props;
     <meta name="viewport" content="width=device-width" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="generator" content={Astro.generator} />
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Pangolin&display=swap"
-      rel="stylesheet"
-    />
     <title>{title}</title>
   </head>
-  <body>
+  <body class="font-display">
     <div class="navbar bg-base-100">
       <div class="navbar-start">
         <div class="dropdown">
@@ -44,25 +43,55 @@ const { title } = Astro.props;
             >
           </div>
           <ul
-            class="menu menu-sm dropdown-content mt-3 z-[1] p-2 shadow bg-base-100 rounded-box w-52"
+            class="menu menu-sm dropdown-content mt-3 z-[1] p-2 shadow bg-base-100 rounded-box w-52 "
           >
-            <li><a>Profile</a></li>
-            <li><a>Bookings</a></li>
-            <li><a>Show Bookings</a></li>
-            <li><a>Log Out</a></li>
+            <li><a class="text-xl"   href="/profile">Profile</a></li>
+            <li><a class="text-xl" href="/book">Book</a></li>
+            <li><a class="text-xl" href="/bookings">Your Bookings</a></li>
+            {session?.user.admin === 1? <li><a href="/admin">Admin Panel</a></li>  :<></>}
+            {
+              !session ? (
+                <>
+                  
+                  <li>
+                    <a class="text-xl" href="/login">Log In</a>
+                  </li>
+                </>
+              ) : (
+                <li>
+                  <a class="text-error text-xl" href="/logout">
+                    Log Out
+                  </a>
+                </li>
+              )
+            }
           </ul>
         </div>
-        <a class="btn btn-ghost text-xl">1A Laundry Booking</a>
+        <a class="btn btn-ghost text-xl" href="/">1A Laundry Bookings</a>
       </div>
       <div class="navbar-center hidden lg:flex">
         <ul class="menu menu-horizontal px-1">
-          <li><a>Profile</a></li>
-          <li><a>Bookings</a></li>
-          <li><a>Show Bookings</a></li>
+          <li><a href="/profile">Profile</a></li>
+          <li><a href="/book">Book</a></li>
+          <li><a href="/bookings">Your Bookings</a></li>
+          {session?.user.admin === 1? <li><a href="/admin">Admin Panel</a></li>  :<></>}
         </ul>
       </div>
-      <div class="navbar-end hidden lg:flex">
-        <a class="btn btn-primary"> Log Out</a>
+      <div class="navbar-end hidden lg:flex gap-2">
+        {
+          !session ? (
+            <>
+              
+              <a class="btn btn-primary" href="/login">
+                Log In
+              </a>
+            </>
+          ) : (
+            <a class="btn btn-primary" href="/logout">
+              Log Out
+            </a>
+          )
+        }
       </div>
     </div>
     <slot />

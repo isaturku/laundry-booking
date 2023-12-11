@@ -1,0 +1,100 @@
+---
+import { LuciaError } from "lucia";
+import Layout from "../../layouts/Layout.astro";
+import { auth } from "../../lib/lucia";
+
+let errorMessage: string | null = null;
+let usernameInput = "";
+
+// check for form submissions
+if (Astro.request.method === "POST") {
+  const formData = await Astro.request.formData();
+  const username = formData.get("username");
+  const password = formData.get("password");
+  // basic check
+  if (typeof username === "string") {
+    usernameInput = username;
+  }
+  const validUsername =
+    typeof username === "string" &&
+    username.length >= 4 &&
+    username.length <= 31;
+  const validPassword =
+    typeof password === "string" &&
+    password.length >= 6 &&
+    password.length <= 255;
+  if (validUsername && validPassword) {
+    try {
+      // find user by key
+      // and validate password
+      const key = await auth.useKey(
+        "username",
+        username.toLowerCase(),
+        password,
+      );
+      const session = await auth.createSession({
+        userId: key.userId,
+        attributes: {},
+      });
+      Astro.locals.auth.setSession(session); // set session cookie
+      return Astro.redirect("/", 302); // redirect to profile page
+    } catch (e) {
+      if (
+        e instanceof LuciaError &&
+        (e.message === "AUTH_INVALID_KEY_ID" ||
+          e.message === "AUTH_INVALID_PASSWORD")
+      ) {
+        // user does not exist
+        // or invalid password
+        errorMessage = "Incorrect username or password";
+        Astro.response.status = 400;
+      } else {
+        errorMessage = "An unknown error occurred";
+        Astro.response.status = 500;
+      }
+    }
+  } else {
+    errorMessage = "Invalid input";
+    Astro.response.status = 400;
+  }
+}
+
+const session = await Astro.locals.auth.validate();
+if (session) return Astro.redirect("/", 302); // redirect to profile page
+---
+
+<Layout title="Log In">
+  <h1 class="text-7xl text-center text-white">Sign in</h1>
+  <form
+    method="POST"
+    class="w-fit flex flex-col items-center gap-4 mx-auto my-2"
+  >
+    <div class="form-control w-full max-w-xs">
+      <label for="username" class="label">
+        <span class="label-text">Username</span>
+      </label>
+      <input
+        name="username"
+        id="username"
+        class="input input-primary"
+        value={usernameInput}
+      />
+    </div>
+    <div class="form-control w-full max-w-xs">
+      <label for="password" class="label">
+        <span class="label-text">Password</span>
+      </label>
+      <input
+        type="password"
+        name="password"
+        id="password"
+        class="input input-primary"
+      />
+    </div>
+    <input class="btn btn-primary" type="submit" value="Sign In" />
+  </form>
+  <p class="text-center my-6 text-error">{errorMessage}</p>
+  <p class="text-center my-6">
+    Already have an account? <a href="/signup">Create an account</a>
+  </p>
+</Layout>

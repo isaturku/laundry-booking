@@ -1,9 +1,50 @@
 ---
-import Layout from '../layouts/Layout.astro';
-import Card from '../components/Card.astro';
+import Layout from "../layouts/Layout.astro";
+import db from "../db";
+import { booking } from "../db/schema";
+const allBookings = await db.query.booking.findMany({
+  where: (booking, { gte }) => gte(booking.endTime, new Date().getTime()),
+  with: {
+    user: true,
+    laundryMachine: true,
+  },
+  orderBy: (booking,{asc})=>[asc(booking.startTime)]
+});
 ---
 
 <Layout title="Laundry Booking 1A">
-
+  <div class="w-fit mx-auto overflow-auto">
+    <table class="table">
+      <thead>
+        <tr>
+          <th>Machine</th>
+          <th>Start Time</th>
+          <th>End Time</th>
+        </tr>
+      </thead>
+      <tbody>
+        {
+          allBookings.map((booking) => (
+            <>
+              <tr>
+                <td>{booking.laundryMachine?.description}</td>
+                <td>
+                  {new Intl.DateTimeFormat("en-GB", {
+                    dateStyle: "medium",
+                    timeStyle: "short",
+                  }).format(new Date(booking.startTime))}
+                </td>
+                <td>
+                  {new Intl.DateTimeFormat("en-GB", {
+                    dateStyle: "medium",
+                    timeStyle: "short",
+                  }).format(new Date(booking.endTime))}
+                </td>
+              </tr>
+            </>
+          ))
+        }
+      </tbody>
+    </table>
+  </div>
 </Layout>
-

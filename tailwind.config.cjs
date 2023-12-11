@@ -4,7 +4,8 @@ module.exports = {
   theme: {
     extend: {
       fontFamily: {
-        display: ["Pangolin", "cursive"],
+        display: ["Pangolin", "sans-serif"],
+        icon: ["Material Symbols Rounded", "sans-serif"],
       },
     },
   },

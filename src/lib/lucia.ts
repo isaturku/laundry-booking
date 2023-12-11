@@ -3,6 +3,7 @@ import { lucia } from "lucia";
 import { astro } from "lucia/middleware";
 import { betterSqlite3 } from "@lucia-auth/adapter-sqlite";
 import sqlite from "better-sqlite3";
+import { facebook, google } from "@lucia-auth/oauth/providers"
 
 const db = sqlite("test.db");
 
@@ -17,9 +18,17 @@ export const auth = lucia({
 
   getUserAttributes: (data) => {
     return {
-      username: data.username
+      username: data.username,
+      roomNr: data.room_nr,
+      admin: data.admin
     };
   }
 });
+
+export const googleAuth = google(auth, {
+  clientId: import.meta.env.GOOGLE_CLIENT_ID,
+  clientSecret: import.meta.env.GOOGLE_CLIENT_SECRET,
+  redirectUri: "http://localhost:4321/login/google/callback"
+})
 
 export type Auth = typeof auth;

@@ -1,0 +1,36 @@
+---
+import Layout from "../../layouts/Layout.astro";
+import { auth } from "../../lib/lucia";
+
+const session = await Astro.locals.auth.validate();
+if (!session) return Astro.redirect("/login", 302);
+if (Astro.request.method === "POST") {
+  const formData = await Astro.request.formData();
+  const roomNr = formData.get("room-nr") as string;
+  const user = await auth.updateUserAttributes(session.user.userId, {
+    room_nr: parseInt(roomNr),
+  });
+  await auth.invalidateAllUserSessions(user.userId);
+  const newSession = await auth.createSession({
+    userId: user.userId,
+    attributes: {},
+  });
+  Astro.locals.auth.setSession(newSession);
+  return Astro.redirect("/", 302);
+}
+---
+
+<Layout title="Complete Profile" />
+<h1 class="text-7xl text-center text-white">Complete Profile Info</h1>
+<form
+  method="post"
+  class="flex flex-col gap-4 mx-auto max-w-xs items-center my-8"
+>
+  <div class="form-control w-full max-w-xs">
+    <label for="room-nr" class="label">
+      <span class="label-text">Room Number</span>
+    </label>
+    <input name="room-nr" id="room-nr" class="input input-primary" required />
+  </div>
+  <input type="submit" value="Submit" class="btn btn-primary" />
+</form>
