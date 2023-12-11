@@ -100,7 +100,7 @@ const session = await Astro.locals.auth.validate();
             </>
           ) : (
             <>
-              <li>{session.user.username}</li>
+              <p>{session.user.username}</p>
               <a class="btn btn-primary" href="/logout">
                 Log Out
               </a>
