@@ -65,14 +65,11 @@ const session = await Astro.locals.auth.validate();
                   </li>
                 </>
               ) : (
-                <>
-                  <li>{session.user.username}</li>
-                  <li>
-                    <a class="text-error text-xl" href="/logout">
-                      Log Out
-                    </a>
-                  </li>
-                </>
+                <li>
+                  <a class="text-error text-xl" href="/logout">
+                    Log Out
+                  </a>
+                </li>
               )
             }
           </ul>
@@ -102,9 +99,12 @@ const session = await Astro.locals.auth.validate();
               </a>
             </>
           ) : (
-            <a class="btn btn-primary" href="/logout">
-              Log Out
-            </a>
+            <>
+              <li>{session.user.username}</li>
+              <a class="btn btn-primary" href="/logout">
+                Log Out
+              </a>
+            </>
           )
         }
       </div>
