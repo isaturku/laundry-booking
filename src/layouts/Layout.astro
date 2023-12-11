@@ -45,6 +45,7 @@ const session = await Astro.locals.auth.validate();
           <ul
             class="menu menu-sm dropdown-content mt-3 z-[1] p-2 shadow bg-base-100 rounded-box w-52"
           >
+            <li><a class="text-xl" href="/">Bookings</a></li>
             <li><a class="text-xl" href="/book">Book</a></li>
             <li><a class="text-xl" href="/bookings">Your Bookings</a></li>
             {
@@ -77,6 +78,7 @@ const session = await Astro.locals.auth.validate();
       </div>
       <div class="navbar-center hidden lg:flex">
         <ul class="menu menu-horizontal px-1">
+          <li><a class="text-xl" href="/">Bookings</a></li>
           <li><a href="/book">Book</a></li>
           <li><a href="/bookings">Your Bookings</a></li>
           {
