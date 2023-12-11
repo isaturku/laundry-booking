@@ -14,8 +14,13 @@ const BookingForm: Component<Props> = (props) => {
   const [machineType, setMachineType] = createSignal<keyof (typeof LAUNDRY_MACHINE_TYPES)>("washer");
   const [selectedTime, setSelectedTime] = createSignal<Date | undefined>();
   const [selectedDuration, setSelectedDuration] = createSignal<1 | 1.5 | 2>(1);
+
+  const minDate = new Date()
+  minDate.setHours(new Date().getHours() + 1)
+
   const maxDate = new Date()
   maxDate.setDate(new Date().getDate() + 14)
+
   const endTime = createMemo(() => {
     const selectedStartTime = selectedTime();
     if (!selectedStartTime) return;
@@ -64,7 +69,7 @@ const BookingForm: Component<Props> = (props) => {
           const hasStartTimeConflict = selectedStartTime.getTime() >= booking.startTime && selectedStartTime.getTime() < booking.endTime
           const hasEndTimeConflict = selectedEndTime.getTime() > booking.startTime && selectedEndTime.getTime() <= booking.endTime
           return hasStartTimeConflict || hasEndTimeConflict;
-         
+
         }) === -1;
         return (
           <label class="label cursor-pointer flex w-full content-between" >
@@ -121,7 +126,7 @@ const BookingForm: Component<Props> = (props) => {
           </label>
         )
       })}
-      <input type="submit" class="btn btn-primary" value={machineType() === "washer" ? "Book Washer":"Book Dryer"} />
+      <input type="submit" class="btn btn-primary" value={machineType() === "washer" ? "Book Washer" : "Book Dryer"} />
     </form>
   )
 }
