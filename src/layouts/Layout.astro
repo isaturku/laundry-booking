@@ -1,7 +1,7 @@
 ---
 import "@fontsource/pangolin";
-import '@fontsource/material-symbols-rounded';
-import {ViewTransitions} from "astro:transitions";
+import "@fontsource/material-symbols-rounded";
+import { ViewTransitions } from "astro:transitions";
 interface Props {
   title: string;
 }
@@ -13,7 +13,7 @@ const session = await Astro.locals.auth.validate();
 <!doctype html>
 <html lang="en" transition:animate="slide">
   <head>
-    <ViewTransitions/>
+    <ViewTransitions />
     <meta charset="UTF-8" />
     <meta
       name="description"
@@ -43,26 +43,36 @@ const session = await Astro.locals.auth.validate();
             >
           </div>
           <ul
-            class="menu menu-sm dropdown-content mt-3 z-[1] p-2 shadow bg-base-100 rounded-box w-52 "
+            class="menu menu-sm dropdown-content mt-3 z-[1] p-2 shadow bg-base-100 rounded-box w-52"
           >
-            <li><a class="text-xl"   href="/profile">Profile</a></li>
+            <li><a class="text-xl" href="/profile">Profile</a></li>
             <li><a class="text-xl" href="/book">Book</a></li>
             <li><a class="text-xl" href="/bookings">Your Bookings</a></li>
-            {session?.user.admin === 1? <li><a href="/admin">Admin Panel</a></li>  :<></>}
+            {
+              session?.user.admin === 1 ? (
+                <li>
+                  <a href="/admin">Admin Panel</a>
+                </li>
+              ) : null
+            }
             {
               !session ? (
                 <>
-                  
                   <li>
-                    <a class="text-xl" href="/login">Log In</a>
+                    <a class="text-xl" href="/login">
+                      Log In
+                    </a>
                   </li>
                 </>
               ) : (
-                <li>
-                  <a class="text-error text-xl" href="/logout">
-                    Log Out
-                  </a>
-                </li>
+                <>
+                  <li>{session.user.username}</li>
+                  <li>
+                    <a class="text-error text-xl" href="/logout">
+                      Log Out
+                    </a>
+                  </li>
+                </>
               )
             }
           </ul>
@@ -74,14 +84,19 @@ const session = await Astro.locals.auth.validate();
           <li><a href="/profile">Profile</a></li>
           <li><a href="/book">Book</a></li>
           <li><a href="/bookings">Your Bookings</a></li>
-          {session?.user.admin === 1? <li><a href="/admin">Admin Panel</a></li>  :<></>}
+          {
+            session?.user.admin === 1 ? (
+              <li>
+                <a href="/admin">Admin Panel</a>
+              </li>
+            ) : null
+          }
         </ul>
       </div>
       <div class="navbar-end hidden lg:flex gap-2">
         {
           !session ? (
             <>
-              
               <a class="btn btn-primary" href="/login">
                 Log In
               </a>
